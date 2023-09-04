@@ -1,18 +1,17 @@
-import { Global, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CredentialsModule } from './credentials/credentials.module';
-import { NotesModule } from './notes/notes.module';
-import { CardsModule } from './cards/cards.module';
-import { EraseModule } from './erase/erase.module';
-import { UsersModule } from './users/users.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { Module } from "@nestjs/common";
+import { PrismaModule } from "./prisma/prisma.module";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { CardsModule } from "./cards/cards.module";
+import { NotesModule } from "./notes/notes.module";
+import { UsersModule } from "./users/users.module";
+import { CredentialsModule } from "./credentials/credentials.module";
+import { EraseModule } from "./erase/erase.module";
 
-@Global()
+
 @Module({
-  imports: [UsersModule, CredentialsModule, NotesModule, CardsModule, EraseModule, PrismaModule],
+  imports: [PrismaModule, CardsModule, NotesModule, UsersModule, CredentialsModule, EraseModule],
   controllers: [AppController],
   providers: [AppService],
-
 })
 export class AppModule { }
