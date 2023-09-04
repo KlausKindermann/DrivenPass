@@ -8,25 +8,25 @@ export class CredentialsRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     async createCredential(createCredentialDto: CreateCredentialsDtoForRegister) {
-        return await this.prisma.credential.create({
+        return await this.prisma.credentials.create({
             data: createCredentialDto
         });
     }
 
     async findAllCredential(userId: number) {
-        return await this.prisma.credential.findMany({
+        return await this.prisma.credentials.findMany({
             where: { userId }
         });
     }
 
     async findOneCredential(id: number) {
-        return await this.prisma.credential.findUnique({
+        return await this.prisma.credentials.findUnique({
             where: { id }
         });
     }
 
     async getCredentialByTitle(title: string) {
-        return await this.prisma.credential.findFirst({
+        return await this.prisma.credentials.findFirst({
             where: { title }
         })
     }
@@ -38,7 +38,7 @@ export class CredentialsRepository {
     }*/
 
     async deleteCredential(id: number) {
-        return await this.prisma.credential.delete({
+        return await this.prisma.credentials.delete({
             where: { id }
         })
     }

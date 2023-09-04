@@ -3,8 +3,8 @@ import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto ';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from "bcrypt";
-import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
+import { Users } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +30,7 @@ export class AuthService {
         return this.createToken(user)
     }
 
-    createToken(user: User) {
+    createToken(user: Users) {
         const { id, email } = user;
         const token = this.jwtService.sign({ email }, {
             expiresIn: this.EXPIRATION_TIME,

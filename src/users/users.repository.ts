@@ -10,7 +10,7 @@ export class UsersRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   create(userDto: CreateUserDto) {
-    return this.prisma.user.create({
+    return this.prisma.users.create({
       data: {
         ...userDto,
         password: bcrypt.hashSync(userDto.password, this.SALT)
@@ -19,13 +19,13 @@ export class UsersRepository {
   }
 
   getById(id: number) {
-    return this.prisma.user.findUnique({
+    return this.prisma.users.findUnique({
       where: { id }
     })
   }
 
   getUserByEmail(email: string) {
-    return this.prisma.user.findFirst({
+    return this.prisma.users.findFirst({
       where: { email }
     })
   }

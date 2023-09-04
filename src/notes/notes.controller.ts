@@ -1,34 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { NotesService } from './notes.service';
-import { CreateNoteDto } from './dto/create-note.dto';
-import { UpdateNoteDto } from './dto/update-note.dto';
+import { AuthGuard } from '../guards/guards';
+import { CreateNotesDto } from './dto/create-note.dto';
+import { User } from '../decorators/user.decorator';
 
+
+@UseGuards(AuthGuard)
 @Controller('notes')
 export class NotesController {
-  constructor(private readonly notesService: NotesService) {}
+  constructor(private readonly notesService: NotesService) { }
 
   @Post()
-  create(@Body() createNoteDto: CreateNoteDto) {
-    return this.notesService.create(createNoteDto);
+  async createNote(@Body() body: CreateNotesDto, @User() user) {
+    try {
+      return this.notesService.createNote(body, user)
+    } catch (error) {
+      if (error.message === 'CONFLICT') {
+        throw new HttpException('CONFLICT', HttpStatus.FORBIDDEN)
+      }
+    }
   }
 
   @Get()
-  findAll() {
-    return this.notesService.findAll();
+  async findAllNotes(@User() user) {
+    return await this.notesService.findAllNotes(user)
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.notesService.update(+id, updateNoteDto);
+  async findOneNote(@Param('id') id: string, @User() user) {
+    try {
+      return await this.notesService.findOneNote(Number(id), user)
+    } catch (error) {
+      if (error.message === 'NOT FOUND') {
+        throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND)
+      } else if (error.message === 'FORBIDDEN') {
+        throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN)
+      }
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notesService.remove(+id);
+  async deleteNote(@Param('id') id: string, @User() user) {
+    try {
+      return await this.notesService.deleteNote(Number(id), user)
+    } catch (error) {
+      if (error.message === 'NOT FOUND') {
+        throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND)
+      } else if (error.message === 'FORBIDDEN') {
+        throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN)
+      }
+    }
   }
 }

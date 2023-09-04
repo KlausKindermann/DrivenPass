@@ -10,7 +10,7 @@ export class CreateNotesDto {
     note: string
 }
 
-export class CreateNotesDTOV2 {
+export class CreateNotesDtoForRegister {
     @IsString()
     @IsNotEmpty()
     title: string

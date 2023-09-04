@@ -1,26 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { CreateEraseDto } from './dto/create-erase.dto';
-import { UpdateEraseDto } from './dto/update-erase.dto';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { CreateEraseDto } from "./dto/create-erase.dto";
+import { User } from "../decorators/user.decorator";
+import { EraseRepository } from "./erase.repository";
+import { UsersRepository } from "../users/users.repository";
+import bcrypt from 'bcrypt'
 
 @Injectable()
 export class EraseService {
-  create(createEraseDto: CreateEraseDto) {
-    return 'This action adds a new erase';
-  }
+    constructor (private repository: EraseRepository, private userRepository: UsersRepository) {}
 
-  findAll() {
-    return `This action returns all erase`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} erase`;
-  }
-
-  update(id: number, updateEraseDto: UpdateEraseDto) {
-    return `This action updates a #${id} erase`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} erase`;
-  }
+    async erase(password: CreateEraseDto, @User() user) {
+        const usuario = await this.userRepository.getById(user.id)
+        const valid = await bcrypt.compare(password, usuario.password);
+        if (!valid) {
+            throw new UnauthorizedException(`Wrong password, please insert the right one`);
+        } else {
+            await this.repository.deleteCardByUserId(user.id)
+            await this.repository.deleteCredentialByUserId(user.id)
+            await this.repository.deleteNoteByUserId(user.id)
+            return await this.repository.deleteUser(user.id)
+        }
+    }
 }
