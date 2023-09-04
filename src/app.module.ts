@@ -6,14 +6,13 @@ import { NotesModule } from './notes/notes.module';
 import { CardsModule } from './cards/cards.module';
 import { EraseModule } from './erase/erase.module';
 import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Global()
 @Module({
-  imports: [UsersModule, CredentialsModule, NotesModule, CardsModule, EraseModule, AuthModule, PrismaModule],
+  imports: [UsersModule, CredentialsModule, NotesModule, CardsModule, EraseModule, PrismaModule],
   controllers: [AppController],
   providers: [AppService],
-  
+
 })
-export class AppModule {}
+export class AppModule { }

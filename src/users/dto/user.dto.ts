@@ -1,18 +1,30 @@
-import { IsEmail, IsNotEmpty, IsStrongPassword, } from 'class-validator';
+import { IsString, IsStrongPassword, IsNotEmpty, IsEmail, IsNumber } from "class-validator";
 
-export default class CreateUserDto {
-    @IsNotEmpty({ message: 'All fields are required!' })
+export class CreateUserDto {
+
+    @IsString()
+    @IsNotEmpty()
     @IsEmail()
-    email: string;
+    email: string
 
-    @IsNotEmpty({ message: 'All fields are required!' })
-    @IsStrongPassword({
-        minLowercase: 1,
-        minSymbols: 1,
-        minNumbers: 1,
-        minUppercase: 1,
-        minLength: 4,
-    })
+    @IsString()
+    @IsNotEmpty()
+    @IsStrongPassword()
     password: string
 }
 
+export class userDto {
+    @IsString()
+    @IsNotEmpty()
+    @IsEmail()
+    email: string
+
+    @IsString()
+    @IsNotEmpty()
+    @IsStrongPassword()
+    password: string
+
+    @IsNotEmpty()
+    @IsNumber()
+    id: number
+}

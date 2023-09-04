@@ -6,9 +6,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NotesRepository } from './notes.repository';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule], 
   controllers: [NotesController],
   providers: [NotesService, NotesRepository, PrismaService],
   exports: [NotesService]
 })
-export class NotesModule { }
+export class NotesModule {}

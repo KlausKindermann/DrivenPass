@@ -37,9 +37,9 @@ export class CardsRepository {
         })
     }
 
-    async deleteCardByUserId(userId: number) {
+   /* async deleteCardByUserId(userId: number) {
         return await this.prisma.cards.delete({
             where: { userId }
         })
-    }
+    }*/
 }

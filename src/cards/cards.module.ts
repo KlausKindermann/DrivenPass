@@ -9,5 +9,6 @@ import { CardsRepository } from './cards.repository';
   imports: [PrismaModule], 
   controllers: [CardsController],
   providers: [CardsService, CardsRepository, PrismaService],
+  exports: [CardsService]
 })
 export class CardsModule {}
