@@ -3,6 +3,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { PrismaModule } from "../prisma/prisma.module";
 import { UsersController } from "./users.controller";
 import { UserService } from "./users.service";
+import { UserRepository } from "./users.repository";
 
 
 @Global()
@@ -11,9 +12,8 @@ import { UserService } from "./users.service";
     secret: process.env.JWT_SECRET
   }), PrismaModule],
   controllers: [UsersController],
-  providers: [UserService],
+  providers: [UserService, UserRepository],
   exports: [UserService]
 })
-export class UsersModule {
 
-}
+export class UsersModule { }

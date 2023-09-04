@@ -10,7 +10,7 @@ import { User } from "../decorators/user.decorator"
 export class EraseController {
   constructor(private eraseService: EraseService) { }
 
-  @Delete()
+ /* @Delete()
   async erase(@Body() body: CreateEraseDto, @User() user) {
     try {
       return await this.eraseService.erase(body, user)
@@ -19,5 +19,5 @@ export class EraseController {
         throw new HttpException('Wrong password, try again!', HttpStatus.UNAUTHORIZED)
       }
     }
-  }
+  }*/
 }

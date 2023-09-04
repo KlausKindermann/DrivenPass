@@ -1,75 +1,25 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import bcrypt from 'bcrypt'
-import { CreateUserDto, userDto } from './dto/user.dto';
-import { UserRepository } from './users.repository';
+import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common"
+import { UserService } from "./users.service"
+import { CreateUserDto } from "./dto/user.dto"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
-@Injectable()
+@ApiTags('users')
+@Controller('users')
 export class UsersController {
-    constructor(private readonly jwtService: JwtService, private userRepository: UserRepository) { }
+    constructor(private userService: UserService) { }
 
-    private EXPIRATION_TIME = "7 days";
-    private ISSUER = "Driven";
-    private AUDIENCE = "users";
-
-    async createUser(user: CreateUserDto) {
-        const exists = await this.userRepository.getUserByEmail(user.email)
-        if (exists) {
-            throw new ConflictException('CONFLICT')
-        } else {
-            const bcrypt = require('bcrypt')
-            const saltRounds = 10;
-            let senha;
-            bcrypt.hash(user.password, saltRounds, function (err, hash) {
-                senha = hash
-            });
-            const usuario = { email: user.email, password: senha }
-            return await this.userRepository.createUser(usuario)
-
-        }
+    @Post('sign-up')
+    @ApiOperation({summary: 'Creates a new user on the platform'})
+    @ApiResponse({ status: HttpStatus.CREATED, description: "User has been created" })
+    signUp(@Body() body: CreateUserDto) {
+        return this.userService.createUser(body)
     }
 
-    async Login(user: CreateUserDto) {
-        const { email, password } = user;
-
-        const usuario = await this.userRepository.getUserByEmail(email);
-        if (!usuario) throw new UnauthorizedException(`Email or password not valid.`);
-
-        const valid = await bcrypt.compare(password, usuario.password);
-        if (!valid) throw new UnauthorizedException(`Email or password not valid.`);
-
-        return this.createToken(usuario);
+    @Post("sign-in")
+    @ApiOperation({summary: 'Log in the user'})
+    @ApiResponse({ status: HttpStatus.CREATED, description: "User has logged in successfully " })
+    signIn(@Body() body: CreateUserDto) {
+        return this.userService.Login(body)
     }
 
-    async getUserById(id: number) {
-        const user = await this.userRepository.getUserById(id)
-        if (user) {
-            return user;
-        } else {
-            throw new NotFoundException('NOT FOUND')
-        }
-    }
-
-    private async createToken(user: userDto) {
-        const { id, email } = user;
-
-        const token = this.jwtService.sign({ email }, {
-            expiresIn: this.EXPIRATION_TIME,
-            subject: String(id),
-            issuer: this.ISSUER,
-            audience: this.AUDIENCE
-        });
-
-        return { token }
-    }
-
-    checkToken(token: string) {
-        const data = this.jwtService.verify(token, {
-            audience: this.AUDIENCE,
-            issuer: this.ISSUER
-        });
-
-        return data;
-    }
 }
-
