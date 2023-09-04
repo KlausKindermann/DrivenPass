@@ -1,34 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CreateCardDto } from './dto/create-card.dto';
-import { UpdateCardDto } from './dto/update-card.dto';
+import { AuthGuard } from '../guards/guards';
+import { User } from '../decorators/user.decorator';
 
+@UseGuards(AuthGuard)
 @Controller('cards')
 export class CardsController {
-  constructor(private readonly cardsService: CardsService) {}
+  constructor(private readonly cardsService: CardsService) { }
 
   @Post()
-  create(@Body() createCardDto: CreateCardDto) {
-    return this.cardsService.create(createCardDto);
+  createCard(@Body() body: CreateCardDto, @User() user) {
+    try {
+      return this.cardsService.createCard(body, user);
+    } catch (error) {
+      if (error.message === 'CONFLICT') {
+        throw new HttpException('Cannot create card', HttpStatus.CONFLICT)
+      }
+    }
+
   }
 
   @Get()
-  findAll() {
-    return this.cardsService.findAll();
+  findAllCards(@User() user) {
+    return this.cardsService.findAllCards(user)
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cardsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
-    return this.cardsService.update(+id, updateCardDto);
+  findOneCard(@Param('id') id: string, @User() user) {
+    try {
+      return this.cardsService.findOneCard(Number(id), user);
+    } catch (error) {
+      if (error.message === 'NOT FOUND') {
+        throw new HttpException('Card has not been found', HttpStatus.NOT_FOUND)
+      } else if (error.message === 'FORBIDDEN') {
+        throw new HttpException('This card does not belong to you', HttpStatus.FORBIDDEN)
+      }
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cardsService.remove(+id);
+  deleteCard(@Param('id') id: string, @User() user) {
+    try {
+      return this.cardsService.deleteCard(Number(id), user);
+    } catch (error) {
+      if (error.message === 'NOT FOUND') {
+        throw new HttpException('Card has not been found', HttpStatus.NOT_FOUND)
+      } else if (error.message === 'FORBIDDEN') {
+        throw new HttpException('This card does not belong to you', HttpStatus.FORBIDDEN)
+      }
+    }
   }
 }

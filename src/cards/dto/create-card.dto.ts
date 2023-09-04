@@ -28,7 +28,7 @@ export class CreateCardDto {
 
 }
 
-export class CreateCardDTOV2 {
+export class CreateCardDtoForRegister {
 
     @IsNotEmpty()
     @IsNumber()

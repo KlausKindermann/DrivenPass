@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CardsController } from './cards.controller';
+import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaService } from '../prisma/prisma.service';
+import { CardsRepository } from './cards.repository';
 
 @Module({
+  imports: [PrismaModule], 
   controllers: [CardsController],
-  providers: [CardsService],
+  providers: [CardsService, CardsRepository, PrismaService],
 })
 export class CardsModule {}

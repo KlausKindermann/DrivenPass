@@ -1,26 +1,69 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
-import { UpdateCardDto } from './dto/update-card.dto';
+import { User } from '../decorators/user.decorator';
+import { CardsRepository } from './cards.repository';
 
 @Injectable()
 export class CardsService {
-  create(createCardDto: CreateCardDto) {
-    return 'This action adds a new card';
+  constructor(private repository: CardsRepository) { }
+
+  async createCard(card: CreateCardDto, @User() user) {
+    const exists = await this.repository.findOneCardByTitle(card.title)
+    if (exists) {
+      if (user.id !== exists.userId) {
+        const Cryptr = require('cryptr');
+        const cryptr = new Cryptr(process.env.JWT_SECRET);
+        const encryptedString = cryptr.encrypt(card.password);
+        const body = {
+          title: card.title, cardNumber: card.cardNumber, userId: user.id,
+          password: encryptedString, isVirtual: card.isVirtual, expireDate: card.expireDate,
+          type: card.type
+        }
+        return this.repository.createCard(body)
+      } else {
+        throw new ConflictException('CONFLICT')
+      }
+    } else {
+      const Cryptr = require('cryptr');
+      const cryptr = new Cryptr(process.env.JWT_SECRET);
+      const encryptedString = cryptr.encrypt(card.password);
+      const body = {
+        title: card.title, cardNumber: card.cardNumber, userId: user.id,
+        password: encryptedString, isVirtual: card.isVirtual, expireDate: card.expireDate,
+        type: card.type
+      }
+      return this.repository.createCard(body)
+    }
   }
 
-  findAll() {
-    return `This action returns all cards`;
+
+  async findAllCards(@User() user) {
+    return await this.repository.findAllCards(user.id)
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} card`;
+  async findOneCard(id: number, @User() user) {
+    const exists = await this.repository.findOneCard(id)
+    if (exists) {
+      if (exists.userId !== user.id) {
+        throw new ForbiddenException('FORBIDDEN')
+      } else {
+        return exists;
+      }
+    } else {
+      throw new NotFoundException('NOT FOUND')
+    }
   }
 
-  update(id: number, updateCardDto: UpdateCardDto) {
-    return `This action updates a #${id} card`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} card`;
+  async deleteCard(id: number, @User() user) {
+    const exists = await this.repository.findOneCard(id)
+    if (exists) {
+      if (exists.userId !== user.id) {
+        throw new ForbiddenException('FORBIDDEN')
+      } else {
+        return await this.repository.deleteCard(id)
+      }
+    } else {
+      throw new NotFoundException('NOT FOUND')
+    }
   }
 }
